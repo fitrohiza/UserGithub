@@ -32,15 +32,16 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.listUser.observe(this) { listUser ->
             setUserData(listUser)
         }
+
         mainViewModel.isLoading.observe(this) {
             showLoading(it)
         }
 
-        mainViewModel.toastMessage.observe(this, Observer { message ->
+        mainViewModel.toastMessage.observe(this) { message ->
             message?.let {
                 Toast.makeText(this@MainActivity, it, Toast.LENGTH_SHORT).show()
             }
-        })
+        }
 
         searchData()
     }

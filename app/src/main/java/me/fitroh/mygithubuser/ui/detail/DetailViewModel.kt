@@ -21,6 +21,9 @@ class DetailViewModel : ViewModel() {
     private val _following = MutableLiveData<List<ItemsItem>>()
     val following: LiveData<List<ItemsItem>> = _following
 
+    private val _listUser = MutableLiveData<List<ItemsItem>>()
+    val listUser: LiveData<List<ItemsItem>> = _listUser
+
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 

@@ -1,7 +1,6 @@
 package me.fitroh.mygithubuser.ui.detail
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -11,15 +10,18 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import me.fitroh.mygithubuser.R
 import me.fitroh.mygithubuser.data.response.DetailUserResponse
+import me.fitroh.mygithubuser.data.response.ItemsItem
 import me.fitroh.mygithubuser.databinding.ActivityDetailUserBinding
 import me.fitroh.mygithubuser.ui.followers.FollowersFragment
 import me.fitroh.mygithubuser.ui.followers.SectionPageradapter
+import me.fitroh.mygithubuser.ui.home.UserAdapter
 
 
 class DetailUserActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDetailUserBinding
     private val detailViewModel by viewModels<DetailViewModel>()
-    var user: String? = null
+
+    private var user: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,33 +29,31 @@ class DetailUserActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         user = intent.getStringExtra("username")
+        val stringUser = user.toString()
 
         supportActionBar?.apply {
-            title = "${user}"
+            title = "$user"
             setDisplayHomeAsUpEnabled(true)
         }
 
-        detailViewModel.getDetailUser(user.toString())
+        detailViewModel.getDetailUser(stringUser)
 
         detailViewModel.detailUser.observe(this) { detailUser ->
             setDetailUser(detailUser)
+        }
+
+        detailViewModel.listUser.observe(this){listUser->
+            setUserData(listUser)
         }
 
         detailViewModel.isLoading.observe(this) {
             showLoading(it)
         }
 
-        val sectionPageradapter = SectionPageradapter(this)
-        val viewPager: ViewPager2 = binding.viewPager
-        viewPager.adapter = sectionPageradapter
-        val tabs : TabLayout = binding.tabs
-        TabLayoutMediator(tabs, viewPager){tab, position ->
-            tab.text = resources.getString(TAB_TITLES[position])
-            Log.d("position", "${tab.text}")
-        }.attach()
+        setAdapter(stringUser)
 
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, FollowersFragment())
+            .replace(R.id.fragment_container, FollowersFragment(stringUser, 0))
             .commit()
     }
 
@@ -66,6 +66,25 @@ class DetailUserActivity : AppCompatActivity() {
         Glide.with(this@DetailUserActivity)
             .load(username.avatarUrl)
             .into(binding.profileImage)
+    }
+
+    private fun setAdapter(username: String) {
+        val sectionPageradapter = SectionPageradapter(this)
+        sectionPageradapter.username = username
+
+        val viewPager: ViewPager2 = binding.viewPager
+        viewPager.adapter = sectionPageradapter
+
+        val tabs: TabLayout = binding.tabs
+        TabLayoutMediator(tabs, viewPager) { tab, position ->
+            tab.text = resources.getString(TAB_TITLES[position])
+        }.attach()
+    }
+
+    private fun setUserData(listUser: List<ItemsItem>) {
+        val adapter = UserAdapter()
+        adapter.submitList(listUser)
+
     }
 
     private fun showLoading(isLoading: Boolean) {

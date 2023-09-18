@@ -7,7 +7,7 @@ import retrofit2.Call
 import retrofit2.http.*
 
 interface ApiService {
-    @Headers("Authorization: token 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")
+    @Headers("Authorization: token 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")
     @GET("search/users")
     fun searchUsers(
         @Query("q") query: String?
